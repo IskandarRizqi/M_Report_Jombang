@@ -1,0 +1,9 @@
+### TEST LOGIN API
+POST http://192.168.18.45:8080/api/v1/login
+Content-Type: application/json
+
+{
+  "email": "winars208@gmail.com",
+  "password": "1234567890",
+  "device": "Mobile EHR"
+}
