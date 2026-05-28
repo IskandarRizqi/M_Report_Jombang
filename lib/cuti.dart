@@ -382,7 +382,7 @@ class LeaveData {
 class EmployeeCard extends StatelessWidget {
   final LeaveData employee;
 
-  const EmployeeCard({Key? key, required this.employee}) : super(key: key);
+  const EmployeeCard({super.key, required this.employee});
 
   @override
   Widget build(BuildContext context) {
@@ -442,7 +442,7 @@ class EmployeeCard extends StatelessWidget {
                             style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 14,
-                                color: const Color(0xFF00A260)),
+                                color: Color(0xFF00A260)),
                           ),
                           const SizedBox(height: 5),
                           Text(
@@ -474,8 +474,7 @@ class CutiDetailPage extends StatefulWidget {
   final String pegawaiId;
 
   const CutiDetailPage(
-      {required this.leaveData, required this.pegawaiId, Key? key})
-      : super(key: key);
+      {required this.leaveData, required this.pegawaiId, super.key});
 
   @override
   State<CutiDetailPage> createState() => _CutiDetailPageState();
@@ -533,7 +532,7 @@ class _CutiDetailPageState extends State<CutiDetailPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '${widget.leaveData.nama}',
+                        widget.leaveData.nama,
                         style: const TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold),
                         overflow: TextOverflow
@@ -541,7 +540,7 @@ class _CutiDetailPageState extends State<CutiDetailPage> {
                         maxLines: 1, // Batasi ke 1 baris
                       ),
                       Text(
-                        '${widget.leaveData.jabatan}',
+                        widget.leaveData.jabatan,
                         style: const TextStyle(
                           fontSize: 16,
                           color: Color(0xFF00A260), // ← warna hijau

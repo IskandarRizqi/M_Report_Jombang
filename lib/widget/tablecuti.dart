@@ -7,7 +7,7 @@ import 'package:ehr_report/api/api.dart';
 
 class Tablecuti extends StatefulWidget {
   final String pegawaiId;
-  const Tablecuti({Key? key, required this.pegawaiId}) : super(key: key);
+  const Tablecuti({super.key, required this.pegawaiId});
 
   @override
   State<Tablecuti> createState() => _TablecutiState();
@@ -34,14 +34,14 @@ class _TablecutiState extends State<Tablecuti> {
       debugPrint('Mengirim request ke API: $apiUrl');
 
       var response = await ApiHandler().getData(apiUrl).timeout(
-        Duration(seconds: 10),
+        const Duration(seconds: 10),
         onTimeout: () {
           throw TimeoutException('Request timeout');
         },
       );
 
       debugPrint('API Response Status Code: ${response.statusCode}');
-      debugPrint('API Response Body: ${response.body}');
+      debugPrint('API Response Body detail cuti: ${response.body}');
 
       if (response.statusCode == 200) {
         var jsonResponse = jsonDecode(response.body);
@@ -88,71 +88,71 @@ class _TablecutiState extends State<Tablecuti> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(8),
+      padding: const EdgeInsets.all(8),
       child: isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : dataCuti.isEmpty
-              ? Center(child: Text('Tidak ada data cuti'))
+              ? const Center(child: Text('Tidak ada data cuti'))
               : SizedBox(
                   height: MediaQuery.of(context).size.height *
                       0.5, // Batasi tinggi maksimal
                   child: ListView.builder(
                     shrinkWrap: true,
                     physics:
-                        AlwaysScrollableScrollPhysics(), // Tambahkan scrolling
+                        const AlwaysScrollableScrollPhysics(), // Tambahkan scrolling
                     itemCount: dataCuti.length,
                     itemBuilder: (context, index) {
                       var cuti = dataCuti[index];
                       return Card(
                         elevation: 4,
-                        margin:
-                            EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                        margin: const EdgeInsets.symmetric(
+                            vertical: 8, horizontal: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Padding(
-                          padding: EdgeInsets.all(12),
+                          padding: const EdgeInsets.all(12),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 cuti['nama_cuti'] ?? 'N/A',
-                                style: TextStyle(
+                                style: const TextStyle(
                                     fontSize: 16, fontWeight: FontWeight.bold),
                               ),
-                              SizedBox(height: 8),
+                              const SizedBox(height: 8),
                               Row(
                                 children: [
-                                  Icon(Icons.calendar_today,
+                                  const Icon(Icons.calendar_today,
                                       size: 16, color: Colors.blue),
-                                  SizedBox(width: 5),
+                                  const SizedBox(width: 5),
                                   Text(
                                     "Mulai: ${formatTanggal(cuti['tgl_mulai'])}",
-                                    style: TextStyle(fontSize: 14),
+                                    style: const TextStyle(fontSize: 14),
                                   ),
                                 ],
                               ),
                               Row(
                                 children: [
-                                  Icon(Icons.event,
+                                  const Icon(Icons.event,
                                       size: 16, color: Colors.red),
-                                  SizedBox(width: 5),
+                                  const SizedBox(width: 5),
                                   Text(
                                     "Selesai: ${formatTanggal(cuti['tgl_selesai'])}",
-                                    style: TextStyle(fontSize: 14),
+                                    style: const TextStyle(fontSize: 14),
                                   ),
                                 ],
                               ),
-                              SizedBox(height: 8),
+                              const SizedBox(height: 8),
                               Text(
                                 "Keterangan: ${cuti['keterangan'] ?? 'N/A'}",
-                                style: TextStyle(
+                                style: const TextStyle(
                                     fontSize: 14, fontStyle: FontStyle.italic),
                               ),
-                              SizedBox(height: 8),
+                              const SizedBox(height: 8),
                               Text(
                                 "Status: ${cuti['status_cuti'] == null ? 'N/A' : (cuti['status_cuti'] == 1 ? 'Diterima' : 'Belum Diterima')}",
-                                style: TextStyle(
+                                style: const TextStyle(
                                     fontSize: 14, fontStyle: FontStyle.italic),
                               ),
                             ],

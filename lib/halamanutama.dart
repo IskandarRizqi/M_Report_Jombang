@@ -36,16 +36,19 @@ class _HomeScreenState extends State<HomeScreen> {
   bool isLoading = true;
   int totalPegawai = 0;
   int totalAbsenHariIni = 0;
+  int totalCutiHariIni = 0;
   int totalTerlambat = 0;
   int totalPerempuan = 0;
   int totalLaki = 0;
   int totalAbsenKemarin = 0;
   int totalTerlambatKemarin = 0;
+  int totalCutiKemarin = 0;
   String _username = '-';
   String namaPegawai = '';
   String nip = '';
   String jabatan = '';
   String shortName = "";
+  DateTime? pickedDate;
 
   Image _profimg = Image.asset(
     'assets/images/def_img.png',
@@ -67,7 +70,8 @@ class _HomeScreenState extends State<HomeScreen> {
         isLoading = true;
       });
 
-      var url = '/widgetdashboardreport';
+      var url =
+          '/widgetdashboardreport?tanggal=${pickedDate != null ? DateFormat('yyyy-MM-dd').format(pickedDate!) : DateFormat('yyyy-MM-dd').format(DateTime.now())}';
       var dat = await ApiHandler().getData(url);
       debugPrint('API Response widget Status Code: ${dat.statusCode}');
       debugPrint('API Response widget Body: ${dat.body}');
@@ -83,6 +87,8 @@ class _HomeScreenState extends State<HomeScreen> {
           totalLaki = jsonResponse['total_pegawai_laki'] ?? 0;
           totalAbsenKemarin = jsonResponse['total_absen_kemarin'] ?? 0;
           totalTerlambatKemarin = jsonResponse['total_terlambat_kemarin'] ?? 0;
+          totalCutiHariIni = jsonResponse['totalCutiHariIni'] ?? 0;
+          totalCutiKemarin = jsonResponse['totalCutiHariKemarin'] ?? 0;
           shortName = jsonResponse['short_name'] ?? '';
           isLoading = false;
         });
@@ -163,13 +169,20 @@ class _HomeScreenState extends State<HomeScreen> {
   void _showDetailPegawai(String title, String tanggal, String type) async {
     // Fetch data dulu, EasyLoading otomatis muncul dari getData
     var response = await ApiHandler()
-        .getData('/detailabsensidashboard?tanggal=$tanggal&type=$type');
+        .getData('/detailabsensidashboard?tanggal=$pickedDate&type=$type');
+    bool isKeterangan =
+        true; //true sembunyikan kolom keterangan, false tampilkan kolom keterangan
+
+    if (type == 'cuti') {
+      isKeterangan = false;
+    }
 
     List<dynamic> data = [];
     if (response.statusCode == 200) {
       var jsonResponse = jsonDecode(response.body);
       data = jsonResponse['data'] ?? [];
     }
+    debugPrint('Data cuti: $data');
 
     // Baru tampilkan bottom sheet setelah data siap
     showModalBottomSheet(
@@ -221,42 +234,63 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: Table(
                             border:
                                 TableBorder.all(color: Colors.grey.shade300),
-                            columnWidths: const {
-                              0: FixedColumnWidth(40),
-                              1: FlexColumnWidth(1),
-                              2: FlexColumnWidth(2),
-                            },
+                            columnWidths: isKeterangan
+                                ? const {
+                                    0: FixedColumnWidth(40),
+                                    1: FlexColumnWidth(1),
+                                    2: FlexColumnWidth(2),
+                                  }
+                                : const {
+                                    0: FixedColumnWidth(40),
+                                    1: FlexColumnWidth(1),
+                                    2: FlexColumnWidth(2),
+                                    3: FlexColumnWidth(2),
+                                  },
                             children: [
                               // Header
                               TableRow(
                                 decoration: const BoxDecoration(
                                     color: Color(0xFF00A260)),
                                 children: [
-                                  Padding(
-                                    padding: const EdgeInsets.all(8),
+                                  const Padding(
+                                    padding: EdgeInsets.all(8),
                                     child: Text('No',
                                         textAlign: TextAlign.center,
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.bold,
                                             fontSize: 12)),
                                   ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(8),
+                                  const Padding(
+                                    padding: EdgeInsets.all(8),
                                     child: Text('NIP',
-                                        style: const TextStyle(
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 12)),
+                                  ),
+                                  const Padding(
+                                    padding: EdgeInsets.all(8),
+                                    child: Text('Nama',
+                                        style: TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.bold,
                                             fontSize: 12)),
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.all(8),
-                                    child: Text('Nama',
-                                        style: const TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 12)),
-                                  ),
+                                    child: Visibility(
+                                      visible: !isKeterangan,
+                                      child: const Text(
+                                        'Keterangan',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                  )
                                 ],
                               ),
                               // Data
@@ -288,6 +322,19 @@ class _HomeScreenState extends State<HomeScreen> {
                                               fontSize: 12,
                                               fontWeight: FontWeight.w600)),
                                     ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(8),
+                                      child: Visibility(
+                                        visible: !isKeterangan,
+                                        child: Text(
+                                          item['keterangan']?.toString() ?? '-',
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
                                   ],
                                 );
                               }),
@@ -296,7 +343,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
               ),
-              SizedBox(height: 40),
+              const SizedBox(height: 40),
             ],
           );
         },
@@ -306,6 +353,22 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    String formattedDateYesterday = DateFormat(
+      "EEEE, dd MMMM yyyy",
+      "id_ID",
+    ).format(
+      pickedDate != null
+          ? pickedDate!.subtract(const Duration(days: 1))
+          : DateTime.now().subtract(const Duration(days: 1)),
+    );
+
+    String formattedDate = DateFormat(
+      "EEEE, dd MMMM yyyy",
+      "id_ID",
+    ).format(
+      pickedDate ?? DateTime.now(),
+    );
+
     return Scaffold(
         body: SingleChildScrollView(
             child: Stack(
@@ -351,8 +414,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 Text(
-                  '${shortName}',
-                  style: TextStyle(
+                  shortName,
+                  style: const TextStyle(
                       color: Colors.white,
                       fontSize: 14,
                       fontWeight: FontWeight.bold),
@@ -362,7 +425,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 Row(
                   children: [
                     Padding(
-                      padding: EdgeInsets.only(left: 20),
+                      padding: const EdgeInsets.only(left: 20),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(50),
                         child: Container(
@@ -381,7 +444,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           children: [
                             Text(
                               namaPegawai,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
@@ -389,7 +452,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             Text(
                               jabatan,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
@@ -397,7 +460,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             Text(
                               nip,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
@@ -409,7 +472,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ],
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 40,
                 ),
               ],
@@ -444,18 +507,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   const SizedBox(width: 10),
                   buildMenuItem(
-                      'assets/images/kpi.png', 'KPI', KPIPage(), context),
+                      'assets/images/kpi.png', 'KPI', const KPIPage(), context),
                   buildMenuItem(
                       'assets/images/absensi.png',
                       'Absensi',
-                      AbsensiPage(
+                      const AbsensiPage(
                         prevPage: '',
                       ),
                       context),
                   buildMenuItem(
                       'assets/images/cuti.png',
                       'Cuti',
-                      EmployeeLeavePage(
+                      const EmployeeLeavePage(
                         prevPage: '',
                       ),
                       context),
@@ -466,14 +529,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   buildMenuItem(
                       'assets/images/lembur.png',
                       'Lembur',
-                      LemburPage(
+                      const LemburPage(
                         prevPage: '',
                       ),
                       context),
                   buildMenuItem(
                       'assets/images/kunjungan.png',
                       'Kunjungan',
-                      KunjunganScreen(
+                      const KunjunganScreen(
                         prevPage: '',
                       ),
                       context),
@@ -508,24 +571,68 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: SizedBox(
-                          height: 30,
-                          child: IconButton(
-                            padding: EdgeInsets.zero,
-                            constraints: BoxConstraints(),
-                            icon: Icon(Icons.refresh, color: Colors.black),
-                            onPressed: () {
-                              fetchWidgetkpi();
-                            },
+                      Row(
+                        children: [
+                          Expanded(
+                            child: SizedBox(
+                              height: 40,
+                              child: TextFormField(
+                                controller: TextEditingController(
+                                  text: pickedDate != null
+                                      ? DateFormat('dd-MM-yyyy')
+                                          .format(pickedDate!)
+                                      : DateFormat('dd-MM-yyyy')
+                                          .format(DateTime.now()),
+                                ),
+                                readOnly: true,
+                                decoration: InputDecoration(
+                                  hintText: 'Pilih tanggal',
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 0,
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  suffixIcon: const Icon(Icons.calendar_today,
+                                      size: 18),
+                                ),
+                                onTap: () async {
+                                  DateTime? selected = await showDatePicker(
+                                    context: context,
+                                    initialDate: pickedDate ?? DateTime.now(),
+                                    firstDate: DateTime(2020),
+                                    lastDate: DateTime(2100),
+                                  );
+
+                                  if (selected != null) {
+                                    setState(() {
+                                      pickedDate = selected;
+                                      fetchWidgetkpi();
+                                    });
+                                  }
+                                },
+                              ),
+                            ),
                           ),
-                        ),
+                          const SizedBox(width: 10),
+                          // SizedBox(
+                          //   height: 30,
+                          //   child: IconButton(
+                          //     padding: EdgeInsets.zero,
+                          //     constraints: BoxConstraints(),
+                          //     icon: Icon(Icons.refresh, color: Colors.black),
+                          //     onPressed: () {
+                          //       fetchWidgetkpi();
+                          //     },
+                          //   ),
+                          // ),
+                        ],
                       ),
                       SizedBox(
                         width: double.infinity,
                         child: Padding(
-                          padding: EdgeInsets.only(top: 0),
+                          padding: const EdgeInsets.only(top: 0),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -558,9 +665,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                       Colors.pink),
                                 ],
                               ),
-                              SizedBox(height: 20),
+                              const SizedBox(height: 20),
                               Text(
-                                "$formattedDate",
+                                formattedDate,
                                 style: TextStyle(
                                   fontSize: 22,
                                   fontWeight: FontWeight.bold,
@@ -578,7 +685,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     Colors.green,
                                   ),
                                   _buildInfoCard(
-                                    "Pegawai Terlambat",
+                                    "Pegawai Terlambt",
                                     "$totalTerlambat Orang",
                                     Icons.warning_amber_rounded,
                                     Colors.orange,
@@ -601,11 +708,23 @@ class _HomeScreenState extends State<HomeScreen> {
                                       'tidak_absen',
                                     ),
                                   ),
+                                  _buildInfoCard(
+                                    "Cuti / Izin       -",
+                                    "$totalCutiHariIni Orang",
+                                    Icons.event_available,
+                                    Colors.green,
+                                    onTap: () => _showDetailPegawai(
+                                      'Cuti / Izin - $formattedDate',
+                                      DateFormat('yyyy-MM-dd')
+                                          .format(DateTime.now()),
+                                      'cuti',
+                                    ),
+                                  ),
                                 ],
                               ),
-                              SizedBox(height: 20),
+                              const SizedBox(height: 20),
                               Text(
-                                "$formattedDateYesterday",
+                                formattedDateYesterday,
                                 style: TextStyle(
                                   fontSize: 22,
                                   fontWeight: FontWeight.bold,
@@ -623,15 +742,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                     Colors.green,
                                   ),
                                   _buildInfoCard(
-                                    "Pegawai Terlambat",
+                                    "Pegawai Terlambt",
                                     "$totalTerlambatKemarin Orang",
                                     Icons.warning_amber_rounded,
                                     Colors.orange,
                                     onTap: () => _showDetailPegawai(
                                       'Terlambat - $formattedDateYesterday',
                                       DateFormat('yyyy-MM-dd').format(
-                                          DateTime.now()
-                                              .subtract(Duration(days: 1))),
+                                          DateTime.now().subtract(
+                                              const Duration(days: 1))),
                                       'terlambat',
                                     ),
                                   ),
@@ -643,9 +762,22 @@ class _HomeScreenState extends State<HomeScreen> {
                                     onTap: () => _showDetailPegawai(
                                       'Tidak Absen - $formattedDateYesterday',
                                       DateFormat('yyyy-MM-dd').format(
-                                          DateTime.now()
-                                              .subtract(Duration(days: 1))),
+                                          DateTime.now().subtract(
+                                              const Duration(days: 1))),
                                       'tidak_absen',
+                                    ),
+                                  ),
+                                  _buildInfoCard(
+                                    "Cuti / Izin      -",
+                                    "$totalCutiKemarin Orang",
+                                    Icons.event_available,
+                                    Colors.green,
+                                    onTap: () => _showDetailPegawai(
+                                      'Cuti / Izin - $formattedDateYesterday',
+                                      DateFormat('yyyy-MM-dd').format(
+                                          DateTime.now().subtract(
+                                              const Duration(days: 1))),
+                                      'cuti',
                                     ),
                                   ),
                                 ],
@@ -657,57 +789,55 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                 ),
-                SizedBox(height: 40),
+                const SizedBox(height: 40),
               ],
             ),
           ),
         ])));
   }
 
-  String formattedDateYesterday = DateFormat("EEEE, dd MMMM yyyy", "id_ID")
-      .format(DateTime.now().subtract(Duration(days: 1)));
-  String formattedDate =
-      DateFormat("EEEE, dd MMMM yyyy", "id_ID").format(DateTime.now());
   Widget _buildInfoCard(
       String title, String value, IconData icon, Color iconColor,
       {VoidCallback? onTap}) {
     // ← tambah onTap
-    return GestureDetector(
-      onTap: onTap,
-      child: SizedBox(
-        width: 90,
-        child: Card(
-          elevation: 3,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          color: Colors.white,
-          child: Padding(
-            padding: EdgeInsets.all(10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Icon(icon, color: iconColor, size: 28),
-                SizedBox(width: 8),
-                Text(
-                  title,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blue[800],
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: SizedBox(
+          width: 100,
+          child: Card(
+            elevation: 4,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            color: Colors.white,
+            child: Padding(
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(icon, color: iconColor, size: 26),
+                  const SizedBox(width: 8),
+                  Text(
+                    title,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue[800],
+                    ),
                   ),
-                ),
-                SizedBox(height: 5),
-                Text(
-                  value,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
+                  const SizedBox(height: 5),
+                  Text(
+                    value,
+                    style: const TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -772,12 +902,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   value: progress,
                   strokeWidth: 6,
                   backgroundColor: Colors.grey[300],
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
                 ),
               ),
               Text(
                 '${(progress * 100).toInt()}',
-                style: TextStyle(
+                style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
@@ -787,7 +917,7 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 8),
           Text(
             label,
-            style: TextStyle(fontSize: 10),
+            style: const TextStyle(fontSize: 10),
           ),
         ],
       ),
@@ -811,12 +941,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   value: progress,
                   strokeWidth: 6,
                   backgroundColor: Colors.grey[300],
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
                 ),
               ),
               Text(
                 '${(progress * 100).toInt()}',
-                style: TextStyle(
+                style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 ),
@@ -826,12 +956,12 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 8),
           Text(
             label,
-            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 4),
           Text(
             description,
-            style: TextStyle(fontSize: 8, color: Colors.grey),
+            style: const TextStyle(fontSize: 8, color: Colors.grey),
           ),
         ],
       ),

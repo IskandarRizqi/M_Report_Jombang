@@ -23,7 +23,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   bool _isLoading = false;
-  int _constat = 1; // Misalnya, 1 berarti koneksi tersedia
+  final int _constat = 1; // Misalnya, 1 berarti koneksi tersedia
   String _errorMessage = '';
   bool _isObscure = true;
   String _appVer = '0';
@@ -39,9 +39,11 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _getAppVersion() async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    setState(() {
-      _appVer = packageInfo.version;
-    });
+    if (mounted) {
+      setState(() {
+        _appVer = packageInfo.version;
+      });
+    }
   }
 
   // Fungsi login
@@ -166,11 +168,13 @@ class _LoginPageState extends State<LoginPage> {
                         padding: const EdgeInsets.all(20.0),
                         child: Column(
                           children: [
-                            Text(
+                            const Text(
                               'Login',
-                              style: GoogleFonts.poppins(
+                              style: TextStyle(
                                 fontSize: 22,
+                                fontFamily: 'Poppins',
                                 fontWeight: FontWeight.bold,
+                                color: Colors.black, // Ensure text is readable
                               ),
                             ),
                             const SizedBox(height: 20),
@@ -228,11 +232,14 @@ class _LoginPageState extends State<LoginPage> {
                               child: _isLoading
                                   ? const CircularProgressIndicator(
                                       color: Colors.white)
-                                  : Text(
+                                  : const Text(
                                       'Login',
-                                      style: GoogleFonts.poppins(
+                                      style: TextStyle(
                                         fontSize: 18,
+                                        fontFamily: 'Poppins',
                                         fontWeight: FontWeight.bold,
+                                        color: Colors
+                                            .black, // Ensure text is readable
                                       ),
                                     ),
                             ),
@@ -246,9 +253,11 @@ class _LoginPageState extends State<LoginPage> {
                     // Versi aplikasi
                     Text(
                       'M Report Jombang V$_appVer',
-                      style: GoogleFonts.poppins(
-                        color: Colors.grey,
+                      style: const TextStyle(
                         fontSize: 12,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey, // Ensure text is readable
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -335,7 +344,7 @@ class _LoginPageState extends State<LoginPage> {
       var body = jsonDecode(userStr);
       print("Token ada, langsung masuk ke HomeScreen...");
 
-      Get.off(() => HomeScreen(
+      Get.off(() => const HomeScreen(
             prevPage: '',
             infoPop: null,
             alertPop: null,

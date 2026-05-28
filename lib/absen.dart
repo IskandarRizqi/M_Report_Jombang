@@ -9,6 +9,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:ehr_report/api/api.dart';
 import 'package:intl/intl.dart';
+import 'package:month_picker_dialog/month_picker_dialog.dart';
 
 class AbsensiPage extends StatefulWidget {
   const AbsensiPage({required this.prevPage, super.key});
@@ -52,6 +53,7 @@ class AbsensiData {
 
 class _AbsensiPageState extends State<AbsensiPage> {
   List<AbsensiData> absensiDataList = []; // Variabel untuk menyimpan data
+  Map<String, dynamic> dataAbsen = {};
   bool isLoading = true;
   String search = "";
   Timer? _debounce;
@@ -80,7 +82,7 @@ class _AbsensiPageState extends State<AbsensiPage> {
 
       var dat = await ApiHandler().getData(url);
       debugPrint('API Response Status Code: ${dat.statusCode}');
-      debugPrint('API Response body: ${dat.body}');
+      debugPrint('API Response body 11: ${dat.body}');
       if (dat.statusCode == 200 && dat.body != null) {
         final dynamic jsonResponse = jsonDecode(dat.body);
         List<dynamic> data = jsonResponse is Map<String, dynamic> &&
@@ -91,9 +93,8 @@ class _AbsensiPageState extends State<AbsensiPage> {
         final branchSet = <String>{'Semua Cabang'};
         for (var item in data) {
           var absensiData = AbsensiData.fromJson(item);
-          if (absensiData.cabang != null &&
-              absensiData.cabang!.trim().isNotEmpty) {
-            branchSet.add(absensiData.cabang!);
+          if (absensiData.cabang.trim().isNotEmpty) {
+            branchSet.add(absensiData.cabang);
           }
         }
 
@@ -221,24 +222,24 @@ class _AbsensiPageState extends State<AbsensiPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Absen',
           style: TextStyle(
             color: Colors.white,
             fontSize: 20,
           ),
         ),
-        backgroundColor: Color(0xFF00A260),
+        backgroundColor: const Color(0xFF00A260),
         centerTitle: true,
         elevation: 0,
-        actions: [
+        actions: const [
           // IconButton(
           //   icon: Icon(Icons.search, color: Colors.white),
           //   onPressed: () {},
           // ),
         ],
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -250,7 +251,7 @@ class _AbsensiPageState extends State<AbsensiPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-                padding: EdgeInsets.all(10),
+                padding: const EdgeInsets.all(10),
                 child: Row(
                   children: [
                     Expanded(
@@ -259,7 +260,7 @@ class _AbsensiPageState extends State<AbsensiPage> {
                             ? selectedBranch
                             : (branches.isNotEmpty ? branches.first : null),
                         isExpanded: true,
-                        hint: Text("Pilih Cabang"),
+                        hint: const Text("Pilih Cabang"),
                         items: branches.map((branch) {
                           return DropdownMenuItem(
                             value: branch,
@@ -282,7 +283,7 @@ class _AbsensiPageState extends State<AbsensiPage> {
                         },
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 10,
                     ),
                     Expanded(
@@ -343,7 +344,7 @@ class _AbsensiPageState extends State<AbsensiPage> {
 class AbsensiCard extends StatelessWidget {
   final AbsensiData absensi;
 
-  const AbsensiCard({Key? key, required this.absensi}) : super(key: key);
+  const AbsensiCard({super.key, required this.absensi});
 
   @override
   Widget build(BuildContext context) {
@@ -391,7 +392,8 @@ class AbsensiCard extends StatelessWidget {
                                             ?.hasAbsolutePath ==
                                         true
                                 ? NetworkImage(absensi.profil)
-                                : AssetImage('assets/images/defaultimg.jpg')
+                                : const AssetImage(
+                                        'assets/images/defaultimg.jpg')
                                     as ImageProvider,
                             fit: BoxFit.cover),
                       ),
@@ -414,7 +416,7 @@ class AbsensiCard extends StatelessWidget {
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 14,
-                              color: const Color(0xFF00A260),
+                              color: Color(0xFF00A260),
                             ),
                           ),
                           const SizedBox(height: 5),
@@ -451,7 +453,7 @@ class AttendanceSearchDelegate extends SearchDelegate<String> {
   List<Widget> buildActions(BuildContext context) {
     return [
       IconButton(
-        icon: Icon(Icons.clear),
+        icon: const Icon(Icons.clear),
         onPressed: () {
           query = '';
         },
@@ -462,7 +464,7 @@ class AttendanceSearchDelegate extends SearchDelegate<String> {
   @override
   Widget buildLeading(BuildContext context) {
     return IconButton(
-      icon: Icon(Icons.arrow_back),
+      icon: const Icon(Icons.arrow_back),
       onPressed: () {
         close(context, '');
       },
@@ -603,7 +605,7 @@ class LegendIndicator extends StatelessWidget {
   final Color color;
   final String text;
 
-  const LegendIndicator({required this.color, required this.text});
+  const LegendIndicator({super.key, required this.color, required this.text});
 
   @override
   Widget build(BuildContext context) {
@@ -614,7 +616,7 @@ class LegendIndicator extends StatelessWidget {
           height: 16,
           color: color,
         ),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         Text(text),
       ],
     );
@@ -686,8 +688,7 @@ class AbsensiDetailPage extends StatefulWidget {
       required this.cabang,
       required this.profil,
       required this.usia,
-      Key? key})
-      : super(key: key);
+      super.key});
   @override
   _AbsensiDetailPageState createState() => _AbsensiDetailPageState();
 }
@@ -695,6 +696,8 @@ class AbsensiDetailPage extends StatefulWidget {
 class _AbsensiDetailPageState extends State<AbsensiDetailPage> {
   DetailAbsensiData? detailAbsensiData;
   List<AbsensiBulanData> absensiBulanData = [];
+  Map<String, dynamic> dataAbsensi = {};
+  DateTime? pickedDate;
   bool isLoading = true;
   @override
   void initState() {
@@ -703,12 +706,14 @@ class _AbsensiDetailPageState extends State<AbsensiDetailPage> {
   }
 
   Future<void> fetchDetailAbsensi() async {
-    String apiUrl = '/detailabsensireport/${widget.pegawaiId}';
+    String apiUrl =
+        '/detailabsensireport/${widget.pegawaiId}?tanggal=${pickedDate != null ? DateFormat('yyyy-MM').format(pickedDate!) : DateTime.now().toString().substring(0, 7)}';
 
     try {
       var response = await ApiHandler().getData(apiUrl);
+      debugPrint('API Response Status Code: $apiUrl');
       debugPrint('API Response Status Code: ${response.statusCode}');
-      debugPrint('API Response Body: ${response.body}');
+      debugPrint('API Response Body 2: ${response.body}');
 
       if (response.statusCode == 200) {
         var jsonResponse = jsonDecode(response.body);
@@ -721,7 +726,10 @@ class _AbsensiDetailPageState extends State<AbsensiDetailPage> {
           dataList = jsonResponse;
         }
 
-        debugPrint('DataList length: ${dataList.length}');
+        debugPrint('DataList length: $jsonResponse');
+        dataAbsensi = jsonResponse['dataabsen'];
+
+        debugPrint('absensiBulanData length: $dataAbsensi');
 
         if (dataList.isNotEmpty) {
           setState(() {
@@ -732,7 +740,6 @@ class _AbsensiDetailPageState extends State<AbsensiDetailPage> {
                     (item) => AbsensiBulanData.fromJson(item))
                 .toList();
 
-            debugPrint('absensiBulanData length: ${absensiBulanData.length}');
             isLoading = false;
           });
         } else {
@@ -747,7 +754,7 @@ class _AbsensiDetailPageState extends State<AbsensiDetailPage> {
     }
   }
 
-  String _formatBulanTahun(String bulanTahun) {
+  formatBulanTahun(String bulanTahun) {
     DateTime date =
         DateTime.parse('$bulanTahun-01'); // Tambah tanggal agar bisa diparsing
     return DateFormat("MMMM yyyy", "id_ID").format(date);
@@ -755,251 +762,527 @@ class _AbsensiDetailPageState extends State<AbsensiDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    // DateTime? pickedDate;
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Detail Absensi',
-          style: TextStyle(fontSize: 20, color: Colors.white),
+        appBar: AppBar(
+          title: const Text(
+            'Detail Absensi',
+            style: TextStyle(fontSize: 20, color: Colors.white),
+          ),
+          backgroundColor: const Color(0xFF00A260),
+          iconTheme: const IconThemeData(
+            color: Colors.white,
+          ),
         ),
-        backgroundColor: Color(0xFF00A260),
-        iconTheme: IconThemeData(
-          color: Colors.white,
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Employee details
-            Card(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.all(10),
-                    child: Container(
-                      width: 60,
-                      height: 60,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF00A260),
-                        borderRadius: BorderRadius.circular(30),
-                        image: DecorationImage(
-                            image: (widget.profil ?? '').isNotEmpty &&
-                                    Uri.tryParse(widget.profil ?? '')
-                                            ?.hasAbsolutePath ==
-                                        true
-                                ? NetworkImage(widget!
-                                    .profil) // Gunakan ! karena sudah dicek null-nya
-                                : const AssetImage('assets/images/profile.jpeg')
-                                    as ImageProvider,
-                            fit: BoxFit.cover),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Employee details
+              Card(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: Container(
+                        width: 60,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF00A260),
+                          borderRadius: BorderRadius.circular(30),
+                          image: DecorationImage(
+                              image: (widget.profil ?? '').isNotEmpty &&
+                                      Uri.tryParse(widget.profil ?? '')
+                                              ?.hasAbsolutePath ==
+                                          true
+                                  ? NetworkImage(widget
+                                      .profil) // Gunakan ! karena sudah dicek null-nya
+                                  : const AssetImage(
+                                          'assets/images/profile.jpeg')
+                                      as ImageProvider,
+                              fit: BoxFit.cover),
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    // ← tambah ini
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '${widget.nama}',
-                          style: TextStyle(
-                              fontSize: 14, fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          '${widget.jabatan}',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Color(0xFF00A260),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      // ← tambah ini
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.nama,
+                            style: const TextStyle(
+                                fontSize: 14, fontWeight: FontWeight.bold),
                           ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          'NIP: ${widget.nip}',
-                          style: TextStyle(fontSize: 14),
-                        ),
-                        Text(
-                          'Usia : ${widget.usia} Tahun',
-                          style: TextStyle(fontSize: 14),
-                        ),
-                        Text(
-                          'Kantor : ${widget.cabang}',
-                          style: TextStyle(fontSize: 14),
-                        ),
-                        SizedBox(height: 4),
-                      ],
+                          const SizedBox(height: 4),
+                          Text(
+                            widget.jabatan,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Color(0xFF00A260),
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'NIP: ${widget.nip}',
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                          Text(
+                            'Usia : ${widget.usia} Tahun',
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                          Text(
+                            'Kantor : ${widget.cabang}',
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                          const SizedBox(height: 4),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-
-            SizedBox(height: 20),
-            if (absensiBulanData != null && absensiBulanData!.isNotEmpty)
-              Expanded(
-                child: Table(
-                  border: TableBorder.all(
-                      color: Colors.grey), // Adds borders to the table
-                  columnWidths: const <int, TableColumnWidth>{
-                    0: FlexColumnWidth(2), // Width for the month column
-                    1: FlexColumnWidth(
-                        1), // Width for the hadir (attendance) column
-                    // 2: FlexColumnWidth(1), // Width for the cuti (leave) column
-                  },
-                  children: [
-                    _buildTableHeaderRow(), // Table header
-                    ...absensiBulanData!
-                        .map((data) => _buildTableRow(data))
-                        .toList(), // Map each data to table rows
                   ],
                 ),
               ),
-            // Add spacing before attendance section
-            // _buildAttendanceTable()
-          ],
-        ),
-      ),
-    );
+              const SizedBox(height: 20),
+              // if (absensiBulanData != null && absensiBulanData!.isNotEmpty)
+              //   Expanded(
+              //     child: Table(
+              //       border: TableBorder.all(
+              //           color: Colors.grey), // Adds borders to the table
+              //       columnWidths: const <int, TableColumnWidth>{
+              //         0: FlexColumnWidth(2), // Width for the month column
+              //         1: FlexColumnWidth(
+              //             1), // Width for the hadir (attendance) column
+              //         // 2: FlexColumnWidth(1), // Width for the cuti (leave) column
+              //       },
+              //       children: [
+              //         _buildTableHeaderRow(), // Table header
+              //         ...absensiBulanData!
+              //             .map((data) => _buildTableRow(data))
+              //             .toList(), // Map each data to table rows
+              //       ],
+              //     ),
+              //   ),
+              GestureDetector(
+                onTap: () async {
+                  DateTime? selected = await showMonthPicker(
+                      context: context,
+                      initialDate: pickedDate ?? DateTime.now(),
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime(2100),
+                      monthPickerDialogSettings: MonthPickerDialogSettings(
+                          headerSettings: PickerHeaderSettings(
+                              headerBackgroundColor: const Color(0xFF00A260))));
+
+                  if (selected != null) {
+                    setState(() {
+                      pickedDate = selected;
+                    });
+
+                    await fetchDetailAbsensi();
+                  }
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        pickedDate == null
+                            ? DateFormat('MM-yyyy').format(DateTime.now())
+                            : DateFormat('MM-yyyy').format(pickedDate!),
+                        style: const TextStyle(
+                          color: Colors.black,
+                        ),
+                      ),
+                      const Icon(Icons.calendar_month),
+                    ],
+                  ),
+                ),
+              ),
+              // GestureDetector(
+              //   onTap: () async {
+              //     DateTime? selected = await showDatePicker(
+              //       context: context,
+              //       initialDate: pickedDate ?? DateTime.now(),
+              //       firstDate: DateTime(2020),
+              //       lastDate: DateTime(2100),
+              //       initialDatePickerMode: DatePickerMode.year,
+              //     );
+
+              //     if (selected != null) {
+              //       setState(() {
+              //         pickedDate = selected;
+              //       });
+              //       await fetchDetailAbsensi();
+              //     }
+              //   },
+              //   child: Container(
+              //     padding: const EdgeInsets.symmetric(
+              //       horizontal: 12,
+              //       vertical: 10,
+              //     ),
+              //     decoration: BoxDecoration(
+              //       color: Colors.white,
+              //       borderRadius: BorderRadius.circular(8),
+              //     ),
+              //     child: Row(
+              //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //       children: [
+              //         Text(
+              //           pickedDate == null
+              //               ? DateTime.now().toString().substring(0, 7)
+              //               : DateFormat('MM-yyyy').format(pickedDate!),
+              //           style: const TextStyle(
+              //             color: Colors.black,
+              //           ),
+              //         ),
+              //         const Icon(Icons.calendar_month),
+              //       ],
+              //     ),
+              //   ),
+              // ),
+              const SizedBox(height: 12),
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: dataAbsensi.length,
+                  itemBuilder: (context, index) {
+                    String bulan = dataAbsensi.keys.elementAt(index);
+                    var bulanData = dataAbsensi[bulan];
+                    List detail = bulanData['detail'];
+                    debugPrint('''
+                      Index : $index
+                      Bulan : $bulan
+                      Bulan Data : $bulanData
+                      Detail Length : ${detail.length}
+                      ''');
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(12),
+                          margin: const EdgeInsets.only(bottom: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.blue,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Wrap(
+                                  spacing: 20,
+                                  runSpacing: 6,
+                                  children: [
+                                    // Text(
+                                    //   bulan,
+                                    //   style: const TextStyle(
+                                    //     color: Colors.white,
+                                    //     fontSize: 18,
+                                    //     fontWeight: FontWeight.bold,
+                                    //   ),
+                                    // ),
+                                    Text(
+                                      'Terlambat: ${bulanData['masuk_terlambat']}',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Masuk Luar Lokasi: ${bulanData['masuk_luar_lokasi']}',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      'Total Absen: ${bulanData['total']}',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ]),
+                        ),
+                        ...detail.map((item) {
+                          return Card(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            elevation: 3,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      const CircleAvatar(
+                                        child: Icon(Icons.person),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              item['nama'],
+                                              style: const TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            Text(item['jabatan']),
+                                          ],
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.login, size: 18),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          'Masuk : ${item['waktu_masuk']}',
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.logout, size: 18),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          'Keluar : ${item['waktu_keluar']}',
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.location_disabled,
+                                          size: 18),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          'Masuk Luar Lokasi : ${item['masuk_diluar_lokasi'] == 1 ? 'Ya' : 'Tidak'}',
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.location_disabled,
+                                          size: 18),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          'Alasan Masuk Luar Lokasi : ${item['alasan_masuk_diluar_lokasi'] ?? ''}',
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.punch_clock, size: 18),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          'Terlambat : ${item['terlambat'] == 1 ? 'Ya' : 'Tidak'}',
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.punch_clock, size: 18),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          'Alasan Terlambat : ${item['alasan_terlambat'] ?? ''}',
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }),
+                        const SizedBox(height: 24),
+                        // Add spacing before attendance section
+                        // _buildAttendanceTable()
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ));
   }
-
-  TableRow _buildTableRow(AbsensiBulanData data) {
-    return TableRow(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(
-            _formatBulanTahun(data.bulanTahun),
-            style: TextStyle(fontSize: 14, color: Colors.black),
-            textAlign: TextAlign.center,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(
-            '${data.total} h', // Display the attendance total
-            style: TextStyle(fontSize: 14, color: Colors.black),
-            textAlign: TextAlign.center,
-          ),
-        ),
-        // Padding(
-        //   padding: const EdgeInsets.all(8.0),
-        //   child: Text(
-        //     '0 h', // Placeholder for "Cuti" (Leave), replace with actual data if available
-        //     style: TextStyle(fontSize: 14, color: Colors.black),
-        //     textAlign: TextAlign.center,
-        //   ),
-        // ),
-      ],
-    );
-  }
-
-  // Helper method to build attendance rows
-  // Widget _buildAttendanceTable() {
-  //   return Table(
-  //     border: TableBorder.all(color: Colors.grey), // Adds borders to the table
-  //     columnWidths: const <int, TableColumnWidth>{
-  //       0: FlexColumnWidth(2), // Width for the month column
-  //       1: FlexColumnWidth(1), // Width for the hadir (attendance) column
-  //       2: FlexColumnWidth(1), // Width for the cuti (leave) column
-  //     },
-  //     children: [
-  //       _buildTableHeaderRow(), // Table header
-  //       _buildTableRow('Januari', '23 h', '2 h'), // Data for January
-  //       _buildTableRow('Februari', '23 h', '2 h'), // Data for February
-  //       _buildTableRow('Maret', '23 h', '2 h'), // Data for March
-  //       // Add more rows as needed
-  //     ],
-  //   );
-  // }
-
-  // Helper method to build the table header
-  TableRow _buildTableHeaderRow() {
-    return TableRow(
-      decoration: BoxDecoration(
-        color: Colors.blue[50], // Blue background for header
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(10), // Rounded top corners
-          topRight: Radius.circular(10),
-        ),
-      ),
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(
-            'Bulan', // Month
-            style: TextStyle(
-                fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
-            textAlign: TextAlign.center,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(
-            'Hadir', // Attendance
-            style: TextStyle(
-                fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
-            textAlign: TextAlign.center,
-          ),
-        ),
-        // Padding(
-        //   padding: const EdgeInsets.all(8.0),
-        //   child: Text(
-        //     'Cuti', // Leave
-        //     style: TextStyle(
-        //         fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
-        //     textAlign: TextAlign.center,
-        //   ),
-        // ),
-      ],
-    );
-  }
-
-  // Helper method to build a table row for attendance data
-  // TableRow _buildTableRow(String month, String hadir, String cuti) {
-  //   return TableRow(
-  //     decoration: BoxDecoration(
-  //       color: Colors.white,
-  //       borderRadius: month == 'Maret' // Apply rounded corners to last row
-  //           ? BorderRadius.only(
-  //               bottomLeft: Radius.circular(10), // Rounded bottom corners
-  //               bottomRight: Radius.circular(10),
-  //             )
-  //           : BorderRadius.zero,
-  //     ),
-  //     children: [
-  //       Padding(
-  //         padding: const EdgeInsets.all(8.0),
-  //         child: Text(
-  //           month,
-  //           style: TextStyle(fontSize: 16),
-  //           textAlign: TextAlign.center,
-  //         ),
-  //       ),
-  //       Padding(
-  //         padding: const EdgeInsets.all(8.0),
-  //         child: Text(
-  //           hadir,
-  //           style: TextStyle(fontSize: 16),
-  //           textAlign: TextAlign.center,
-  //         ),
-  //       ),
-  //       Padding(
-  //         padding: const EdgeInsets.all(8.0),
-  //         child: Text(
-  //           cuti,
-  //           style: TextStyle(fontSize: 16),
-  //           textAlign: TextAlign.center,
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
 }
 
+TableRow _buildTableRow(AbsensiBulanData data) {
+  return TableRow(
+    children: [
+      Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text(
+          // formatBulanTahun(data.bulanTahun),
+          DateFormat("MMMM yyyy", "id_ID")
+              .format(DateTime.parse('$data.bulanTahun-01')),
+          style: const TextStyle(fontSize: 14, color: Colors.black),
+          textAlign: TextAlign.center,
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text(
+          '${data.total} h', // Display the attendance total
+          style: const TextStyle(fontSize: 14, color: Colors.black),
+          textAlign: TextAlign.center,
+        ),
+      ),
+      // Padding(
+      //   padding: const EdgeInsets.all(8.0),
+      //   child: Text(
+      //     '0 h', // Placeholder for "Cuti" (Leave), replace with actual data if available
+      //     style: TextStyle(fontSize: 14, color: Colors.black),
+      //     textAlign: TextAlign.center,
+      //   ),
+      // ),
+    ],
+  );
+}
+
+// Helper method to build attendance rows
+// Widget _buildAttendanceTable() {
+//   return Table(
+//     border: TableBorder.all(color: Colors.grey), // Adds borders to the table
+//     columnWidths: const <int, TableColumnWidth>{
+//       0: FlexColumnWidth(2), // Width for the month column
+//       1: FlexColumnWidth(1), // Width for the hadir (attendance) column
+//       2: FlexColumnWidth(1), // Width for the cuti (leave) column
+//     },
+//     children: [
+//       _buildTableHeaderRow(), // Table header
+//       _buildTableRow('Januari', '23 h', '2 h'), // Data for January
+//       _buildTableRow('Februari', '23 h', '2 h'), // Data for February
+//       _buildTableRow('Maret', '23 h', '2 h'), // Data for March
+//       // Add more rows as needed
+//     ],
+//   );
+// }
+
+// Helper method to build the table header
+TableRow _buildTableHeaderRow() {
+  return TableRow(
+    decoration: BoxDecoration(
+      color: Colors.blue[50], // Blue background for header
+      borderRadius: const BorderRadius.only(
+        topLeft: Radius.circular(10), // Rounded top corners
+        topRight: Radius.circular(10),
+      ),
+    ),
+    children: const [
+      Padding(
+        padding: EdgeInsets.all(8.0),
+        child: Text(
+          'Bulan', // Month
+          style: TextStyle(
+              fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
+          textAlign: TextAlign.center,
+        ),
+      ),
+      Padding(
+        padding: EdgeInsets.all(8.0),
+        child: Text(
+          'Hadir', // Attendance
+          style: TextStyle(
+              fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
+          textAlign: TextAlign.center,
+        ),
+      ),
+      // Padding(
+      //   padding: const EdgeInsets.all(8.0),
+      //   child: Text(
+      //     'Cuti', // Leave
+      //     style: TextStyle(
+      //         fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
+      //     textAlign: TextAlign.center,
+      //   ),
+      // ),
+    ],
+  );
+}
+
+// Helper method to build a table row for attendance data
+// TableRow _buildTableRow(String month, String hadir, String cuti) {
+//   return TableRow(
+//     decoration: BoxDecoration(
+//       color: Colors.white,
+//       borderRadius: month == 'Maret' // Apply rounded corners to last row
+//           ? BorderRadius.only(
+//               bottomLeft: Radius.circular(10), // Rounded bottom corners
+//               bottomRight: Radius.circular(10),
+//             )
+//           : BorderRadius.zero,
+//     ),
+//     children: [
+//       Padding(
+//         padding: const EdgeInsets.all(8.0),
+//         child: Text(
+//           month,
+//           style: TextStyle(fontSize: 16),
+//           textAlign: TextAlign.center,
+//         ),
+//       ),
+//       Padding(
+//         padding: const EdgeInsets.all(8.0),
+//         child: Text(
+//           hadir,
+//           style: TextStyle(fontSize: 16),
+//           textAlign: TextAlign.center,
+//         ),
+//       ),
+//       Padding(
+//         padding: const EdgeInsets.all(8.0),
+//         child: Text(
+//           cuti,
+//           style: TextStyle(fontSize: 16),
+//           textAlign: TextAlign.center,
+//         ),
+//       ),
+//     ],
+//   );
+// }
 class Group56 extends StatelessWidget {
+  const Group56({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -1011,14 +1294,14 @@ class Group56 extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white, // Background color for the whole container
           borderRadius: BorderRadius.circular(15),
-          border: Border.all(color: Color(0xFFCCCCCC), width: 1),
+          border: Border.all(color: const Color(0xFFCCCCCC), width: 1),
           boxShadow: [
             // Adds a shadow for a 3D effect
             BoxShadow(
               color: Colors.grey.withOpacity(0.2),
               spreadRadius: 2,
               blurRadius: 5,
-              offset: Offset(0, 3),
+              offset: const Offset(0, 3),
             ),
           ],
         ),
@@ -1042,12 +1325,12 @@ class Group56 extends StatelessWidget {
     return Container(
       width: 340,
       height: 37,
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: Color(0xFFCCCCCC),
         borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
         border: Border(bottom: BorderSide(width: 1, color: Color(0xFFCCCCCC))),
       ),
-      child: Center(
+      child: const Center(
         // Center the text within the container
         child: Text(
           'Kehadiran', // Text to display
@@ -1087,7 +1370,7 @@ class Group56 extends StatelessWidget {
       height: 18,
       child: Text(
         text,
-        style: TextStyle(
+        style: const TextStyle(
           color: Colors.black,
           fontSize: 12,
           fontFamily: 'Poppins',
@@ -1137,13 +1420,13 @@ class Group56 extends StatelessWidget {
     return Expanded(
       child: Container(
         alignment: Alignment.center,
-        padding: EdgeInsets.symmetric(
+        padding: const EdgeInsets.symmetric(
             vertical: 10), // Increased padding for better spacing
         child: Text(
           value,
           maxLines: 1, // Limit to one line
           overflow: TextOverflow.ellipsis, // Add ellipsis for overflow
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 10,
             fontFamily: 'Poppins',
             fontWeight: FontWeight.w400,
