@@ -18,11 +18,12 @@ import 'package:awesome_dialog/awesome_dialog.dart';
 
 class ApiHandler {
   String _apiurl = 'https://cmyo.sibegawan.com/api/v1';
-  // String _apiurl = 'http://192.168.0.112:4444/api/v1';
+  // String _apiurl = 'http://192.168.0.103:8000/api/v1';
+  // String _apiurl = 'http://192.168.1.5:8000/api/v1';
 
   String _token = '';
-  String _devid = '';
-  String _devinf = '';
+  final String _devid = '';
+  final String _devinf = '';
   String _appver = '0';
   int _deftimout = 60;
 
@@ -86,7 +87,7 @@ class ApiHandler {
     } catch (e) {}
   }
 
-  authData(data, apiUrl, {bldctx = null}) async {
+  authData(data, apiUrl, {bldctx}) async {
     print('tes authdata');
     EasyLoading.show(status: 'Loading', maskType: EasyLoadingMaskType.black);
     await _connectionCheck();
@@ -95,9 +96,9 @@ class ApiHandler {
     log('API URL: $apiUrl');
 
     // final fcmToken = await FirebaseMessaging.instance.getToken();
-    final fcmToken = null;
+    const fcmToken = null;
 
-    var fullUrl = _apiurl + apiUrl + '?fbtoken=' + fcmToken.toString();
+    var fullUrl = '${_apiurl + apiUrl}?fbtoken=$fcmToken';
     var res = await http
         .post(Uri.parse(fullUrl),
             body: jsonEncode(data), headers: _setHeaders())
@@ -125,7 +126,7 @@ class ApiHandler {
     return res;
   }
 
-  authOut({bldctx = null}) async {
+  authOut({bldctx}) async {
     print('tes authout');
     EasyLoading.show(status: 'Loading', maskType: EasyLoadingMaskType.black);
     await _connectionCheck();
@@ -164,7 +165,7 @@ class ApiHandler {
     }
   }
 
-  authCheck({bldctx = null}) async {
+  authCheck({bldctx}) async {
     print('tes authcheck');
     EasyLoading.show(status: 'Loading', maskType: EasyLoadingMaskType.black);
     await _connectionCheck();
@@ -227,7 +228,7 @@ class ApiHandler {
     return res;
   }
 
-  getData(apiUrl, {bldctx = null}) async {
+  getData(apiUrl, {bldctx}) async {
     print('tes getdata');
     EasyLoading.show(status: 'Loading', maskType: EasyLoadingMaskType.black);
     await _connectionCheck();
@@ -278,14 +279,14 @@ class ApiHandler {
         desc: 'Koneksi Terputus',
         btnCancel: null,
         btnOkOnPress: () {},
-      ).show().then((value) => Get.offAll(() => LoginPage()));
+      ).show().then((value) => Get.offAll(() => const LoginPage()));
     } else {
-      Get.offAll(() => LoginPage());
+      Get.offAll(() => const LoginPage());
     }
     // Get.offAll(LoginPage());
   }
 
-  postData(apiUrl, data, {bldctx = null}) async {
+  postData(apiUrl, data, {bldctx}) async {
     print('tes postdata');
     EasyLoading.show(status: 'Loading', maskType: EasyLoadingMaskType.black);
     await _connectionCheck();

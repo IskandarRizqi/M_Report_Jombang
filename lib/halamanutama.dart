@@ -167,9 +167,16 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _showDetailPegawai(String title, String tanggal, String type) async {
+    if (tanggal == 'kemarin') {
+      tanggal = DateFormat('yyyy-MM-dd').format(DateTime.parse(
+              pickedDate != null
+                  ? pickedDate.toString()
+                  : DateTime.now().toString())
+          .subtract(const Duration(days: 1)));
+    }
     // Fetch data dulu, EasyLoading otomatis muncul dari getData
     var response = await ApiHandler()
-        .getData('/detailabsensidashboard?tanggal=$pickedDate&type=$type');
+        .getData('/detailabsensidashboard?tanggal=$tanggal&type=$type');
     bool isKeterangan =
         true; //true sembunyikan kolom keterangan, false tampilkan kolom keterangan
 
@@ -182,6 +189,7 @@ class _HomeScreenState extends State<HomeScreen> {
       var jsonResponse = jsonDecode(response.body);
       data = jsonResponse['data'] ?? [];
     }
+    debugPrint('Data cuti: detailabsensidashboard?tanggal=$tanggal&type=$type');
     debugPrint('Data cuti: $data');
 
     // Baru tampilkan bottom sheet setelah data siap
@@ -692,19 +700,19 @@ class _HomeScreenState extends State<HomeScreen> {
                                     onTap: () => _showDetailPegawai(
                                       'Terlambat - $formattedDate',
                                       DateFormat('yyyy-MM-dd')
-                                          .format(DateTime.now()),
+                                          .format(pickedDate ?? DateTime.now()),
                                       'terlambat',
                                     ),
                                   ),
                                   _buildInfoCard(
                                     "Tidak Absen",
-                                    "${totalPegawai - totalAbsenHariIni} Orang",
+                                    "${totalPegawai - totalAbsenHariIni - totalCutiHariIni} Orang",
                                     Icons.cancel,
                                     Colors.red,
                                     onTap: () => _showDetailPegawai(
                                       'Tidak Absen - $formattedDate',
                                       DateFormat('yyyy-MM-dd')
-                                          .format(DateTime.now()),
+                                          .format(pickedDate ?? DateTime.now()),
                                       'tidak_absen',
                                     ),
                                   ),
@@ -716,7 +724,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     onTap: () => _showDetailPegawai(
                                       'Cuti / Izin - $formattedDate',
                                       DateFormat('yyyy-MM-dd')
-                                          .format(DateTime.now()),
+                                          .format(pickedDate ?? DateTime.now()),
                                       'cuti',
                                     ),
                                   ),
@@ -748,22 +756,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                     Colors.orange,
                                     onTap: () => _showDetailPegawai(
                                       'Terlambat - $formattedDateYesterday',
-                                      DateFormat('yyyy-MM-dd').format(
-                                          DateTime.now().subtract(
-                                              const Duration(days: 1))),
+                                      'kemarin',
                                       'terlambat',
                                     ),
                                   ),
                                   _buildInfoCard(
                                     "Tidak Absen",
-                                    "${totalPegawai - totalAbsenKemarin} Orang",
+                                    "${totalPegawai - totalAbsenKemarin - totalCutiKemarin} Orang",
                                     Icons.cancel,
                                     Colors.red,
                                     onTap: () => _showDetailPegawai(
                                       'Tidak Absen - $formattedDateYesterday',
-                                      DateFormat('yyyy-MM-dd').format(
-                                          DateTime.now().subtract(
-                                              const Duration(days: 1))),
+                                      'kemarin',
                                       'tidak_absen',
                                     ),
                                   ),
@@ -774,9 +778,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     Colors.green,
                                     onTap: () => _showDetailPegawai(
                                       'Cuti / Izin - $formattedDateYesterday',
-                                      DateFormat('yyyy-MM-dd').format(
-                                          DateTime.now().subtract(
-                                              const Duration(days: 1))),
+                                      'kemarin',
                                       'cuti',
                                     ),
                                   ),

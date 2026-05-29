@@ -1007,6 +1007,13 @@ class _AbsensiDetailPageState extends State<AbsensiDetailPage> {
                                       ),
                                     ),
                                     Text(
+                                      'Keluar Luar Lokasi: ${bulanData['keluar_diluar_lokasi']}',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
                                       'Total Absen: ${bulanData['total']}',
                                       style: const TextStyle(
                                         color: Colors.white,
@@ -1123,6 +1130,30 @@ class _AbsensiDetailPageState extends State<AbsensiDetailPage> {
                                       Expanded(
                                         child: Text(
                                           'Alasan Terlambat : ${item['alasan_terlambat'] ?? ''}',
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.output, size: 18),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          'Keluar Lokasi : ${item['keluar_diluar_lokasi'] == 1 ? 'Ya' : 'Tidak'}',
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.output, size: 18),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          'Alasan Keluar Lokasi : ${item['alasan_keluar_diluar_lokasi'] ?? ''}',
                                         ),
                                       )
                                     ],
