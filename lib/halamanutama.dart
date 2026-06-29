@@ -900,23 +900,26 @@ class _HomeScreenState extends State<HomeScreen> {
             borderRadius: BorderRadius.circular(10),
           ),
           color: Colors.white,
-          child: SizedBox(
-            height: 105, // tinggi semua card disamakan
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              minHeight: 105,
+            ),
             child: Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: 6,
-                vertical: 10,
+                vertical: 8,
               ),
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Icon(
                     icon,
                     color: iconColor,
-                    size: 26,
+                    size: 24,
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 4),
                   Text(
                     title,
                     textAlign: TextAlign.center,
@@ -924,20 +927,25 @@ class _HomeScreenState extends State<HomeScreen> {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: 11,
+                      height: 1.1,
                       fontWeight: FontWeight.bold,
                       color: Colors.blue[800],
                     ),
                   ),
-                  const SizedBox(height: 6),
-                  Text(
-                    value,
-                    textAlign: TextAlign.center,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
+                  const SizedBox(height: 4),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      value,
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 10,
+                        height: 1.1,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                      ),
                     ),
                   ),
                 ],
