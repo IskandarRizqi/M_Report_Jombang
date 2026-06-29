@@ -43,6 +43,10 @@ class _HomeScreenState extends State<HomeScreen> {
   int totalAbsenKemarin = 0;
   int totalTerlambatKemarin = 0;
   int totalCutiKemarin = 0;
+  int totalMasukLuarLokasiHariIni = 0;
+  int totalMasukLuarLokasiKemarin = 0;
+  int totalKeluarLuarLokasiHariIni = 0;
+  int totalKeluarLuarLokasiKemarin = 0;
   String _username = '-';
   String namaPegawai = '';
   String nip = '';
@@ -89,6 +93,14 @@ class _HomeScreenState extends State<HomeScreen> {
           totalTerlambatKemarin = jsonResponse['total_terlambat_kemarin'] ?? 0;
           totalCutiHariIni = jsonResponse['totalCutiHariIni'] ?? 0;
           totalCutiKemarin = jsonResponse['totalCutiHariKemarin'] ?? 0;
+          totalMasukLuarLokasiHariIni =
+              jsonResponse['totalMasukLuarLokasiHariIni'] ?? 0;
+          totalMasukLuarLokasiKemarin =
+              jsonResponse['totalMasukLuarLokasiKemarin'] ?? 0;
+          totalKeluarLuarLokasiHariIni =
+              jsonResponse['totalKeluarLuarLokasiHariIni'] ?? 0;
+          totalKeluarLuarLokasiKemarin =
+              jsonResponse['totalKeluarLuarLokasiKemarin'] ?? 0;
           shortName = jsonResponse['short_name'] ?? '';
           isLoading = false;
         });
@@ -181,6 +193,14 @@ class _HomeScreenState extends State<HomeScreen> {
         true; //true sembunyikan kolom keterangan, false tampilkan kolom keterangan
 
     if (type == 'cuti') {
+      isKeterangan = false;
+    }
+
+    if (type == 'masuk_luar_lokasi') {
+      isKeterangan = false;
+    }
+
+    if (type == 'keluar_luar_lokasi') {
       isKeterangan = false;
     }
 
@@ -682,52 +702,86 @@ class _HomeScreenState extends State<HomeScreen> {
                                   color: Colors.blue[900],
                                 ),
                               ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                              Column(
                                 children: [
-                                  _buildInfoCard(
-                                    "Total Absen",
-                                    "$totalAbsenHariIni Orang",
-                                    Icons.check_circle,
-                                    Colors.green,
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      _buildInfoCard(
+                                        "Total Absen",
+                                        "$totalAbsenHariIni Orang",
+                                        Icons.check_circle,
+                                        Colors.green,
+                                      ),
+                                      _buildInfoCard(
+                                        "Pegawai Terlambat",
+                                        "$totalTerlambat Orang",
+                                        Icons.warning_amber_rounded,
+                                        Colors.orange,
+                                        onTap: () => _showDetailPegawai(
+                                          'Terlambat - $formattedDate',
+                                          DateFormat('yyyy-MM-dd').format(
+                                              pickedDate ?? DateTime.now()),
+                                          'terlambat',
+                                        ),
+                                      ),
+                                      _buildInfoCard(
+                                        "Tidak Absen",
+                                        "${totalPegawai - totalAbsenHariIni - totalCutiHariIni} Orang",
+                                        Icons.cancel,
+                                        Colors.red,
+                                        onTap: () => _showDetailPegawai(
+                                          'Tidak Absen - $formattedDate',
+                                          DateFormat('yyyy-MM-dd').format(
+                                              pickedDate ?? DateTime.now()),
+                                          'tidak_absen',
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  _buildInfoCard(
-                                    "Pegawai Terlambt",
-                                    "$totalTerlambat Orang",
-                                    Icons.warning_amber_rounded,
-                                    Colors.orange,
-                                    onTap: () => _showDetailPegawai(
-                                      'Terlambat - $formattedDate',
-                                      DateFormat('yyyy-MM-dd')
-                                          .format(pickedDate ?? DateTime.now()),
-                                      'terlambat',
-                                    ),
-                                  ),
-                                  _buildInfoCard(
-                                    "Tidak Absen",
-                                    "${totalPegawai - totalAbsenHariIni - totalCutiHariIni} Orang",
-                                    Icons.cancel,
-                                    Colors.red,
-                                    onTap: () => _showDetailPegawai(
-                                      'Tidak Absen - $formattedDate',
-                                      DateFormat('yyyy-MM-dd')
-                                          .format(pickedDate ?? DateTime.now()),
-                                      'tidak_absen',
-                                    ),
-                                  ),
-                                  _buildInfoCard(
-                                    "Cuti / Izin       -",
-                                    "$totalCutiHariIni Orang",
-                                    Icons.event_available,
-                                    Colors.green,
-                                    onTap: () => _showDetailPegawai(
-                                      'Cuti / Izin - $formattedDate',
-                                      DateFormat('yyyy-MM-dd')
-                                          .format(pickedDate ?? DateTime.now()),
-                                      'cuti',
-                                    ),
-                                  ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      _buildInfoCard(
+                                        "Cuti / Izin",
+                                        "$totalCutiHariIni Orang",
+                                        Icons.event_available,
+                                        Colors.green,
+                                        onTap: () => _showDetailPegawai(
+                                          'Cuti / Izin - $formattedDate',
+                                          DateFormat('yyyy-MM-dd').format(
+                                              pickedDate ?? DateTime.now()),
+                                          'cuti',
+                                        ),
+                                      ),
+                                      _buildInfoCard(
+                                        "Masuk Luar Lokasi",
+                                        "$totalMasukLuarLokasiHariIni Orang",
+                                        Icons.login_rounded,
+                                        Colors.blue,
+                                        onTap: () => _showDetailPegawai(
+                                          'Masuk Luar Lokasi - $formattedDate',
+                                          DateFormat('yyyy-MM-dd').format(
+                                              pickedDate ?? DateTime.now()),
+                                          'masuk_luar_lokasi',
+                                        ),
+                                      ),
+                                      _buildInfoCard(
+                                        "Keluar Luar Lokasi",
+                                        "$totalKeluarLuarLokasiHariIni Orang",
+                                        Icons.logout_rounded,
+                                        Colors.purple,
+                                        onTap: () => _showDetailPegawai(
+                                          'Keluar Luar Lokasi - $formattedDate',
+                                          DateFormat('yyyy-MM-dd').format(
+                                              pickedDate ?? DateTime.now()),
+                                          'keluar_luar_lokasi',
+                                        ),
+                                      ),
+                                    ],
+                                  )
                                 ],
                               ),
                               const SizedBox(height: 20),
@@ -739,48 +793,80 @@ class _HomeScreenState extends State<HomeScreen> {
                                   color: Colors.blue[900],
                                 ),
                               ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                              Column(
                                 children: [
-                                  _buildInfoCard(
-                                    "Total Absen",
-                                    "$totalAbsenKemarin Orang",
-                                    Icons.check_circle,
-                                    Colors.green,
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      _buildInfoCard(
+                                        "Total Absen",
+                                        "$totalAbsenKemarin Orang",
+                                        Icons.check_circle,
+                                        Colors.green,
+                                      ),
+                                      _buildInfoCard(
+                                        "Pegawai Terlambat",
+                                        "$totalTerlambatKemarin Orang",
+                                        Icons.warning_amber_rounded,
+                                        Colors.orange,
+                                        onTap: () => _showDetailPegawai(
+                                          'Terlambat - $formattedDateYesterday',
+                                          'kemarin',
+                                          'terlambat',
+                                        ),
+                                      ),
+                                      _buildInfoCard(
+                                        "Tidak Absen",
+                                        "${totalPegawai - totalAbsenKemarin - totalCutiKemarin} Orang",
+                                        Icons.cancel,
+                                        Colors.red,
+                                        onTap: () => _showDetailPegawai(
+                                          'Tidak Absen - $formattedDateYesterday',
+                                          'kemarin',
+                                          'tidak_absen',
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  _buildInfoCard(
-                                    "Pegawai Terlambt",
-                                    "$totalTerlambatKemarin Orang",
-                                    Icons.warning_amber_rounded,
-                                    Colors.orange,
-                                    onTap: () => _showDetailPegawai(
-                                      'Terlambat - $formattedDateYesterday',
-                                      'kemarin',
-                                      'terlambat',
-                                    ),
-                                  ),
-                                  _buildInfoCard(
-                                    "Tidak Absen",
-                                    "${totalPegawai - totalAbsenKemarin - totalCutiKemarin} Orang",
-                                    Icons.cancel,
-                                    Colors.red,
-                                    onTap: () => _showDetailPegawai(
-                                      'Tidak Absen - $formattedDateYesterday',
-                                      'kemarin',
-                                      'tidak_absen',
-                                    ),
-                                  ),
-                                  _buildInfoCard(
-                                    "Cuti / Izin      -",
-                                    "$totalCutiKemarin Orang",
-                                    Icons.event_available,
-                                    Colors.green,
-                                    onTap: () => _showDetailPegawai(
-                                      'Cuti / Izin - $formattedDateYesterday',
-                                      'kemarin',
-                                      'cuti',
-                                    ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      _buildInfoCard(
+                                        "Cuti / Izin",
+                                        "$totalCutiKemarin Orang",
+                                        Icons.event_available,
+                                        Colors.green,
+                                        onTap: () => _showDetailPegawai(
+                                          'Cuti / Izin - $formattedDateYesterday',
+                                          'kemarin',
+                                          'cuti',
+                                        ),
+                                      ),
+                                      _buildInfoCard(
+                                        "Masuk Luar Lokasi",
+                                        "$totalMasukLuarLokasiKemarin Orang",
+                                        Icons.login_rounded,
+                                        Colors.blue,
+                                        onTap: () => _showDetailPegawai(
+                                          'Masuk Luar Lokasi - $formattedDateYesterday',
+                                          'kemarin',
+                                          'masuk_luar_lokasi',
+                                        ),
+                                      ),
+                                      _buildInfoCard(
+                                        "Keluar Luar Lokasi",
+                                        "$totalKeluarLuarLokasiKemarin Orang",
+                                        Icons.logout_rounded,
+                                        Colors.purple,
+                                        onTap: () => _showDetailPegawai(
+                                          'Keluar Luar Lokasi - $formattedDateYesterday',
+                                          'kemarin',
+                                          'keluar_luar_lokasi',
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
@@ -799,39 +885,55 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildInfoCard(
-      String title, String value, IconData icon, Color iconColor,
-      {VoidCallback? onTap}) {
-    // ← tambah onTap
+    String title,
+    String value,
+    IconData icon,
+    Color iconColor, {
+    VoidCallback? onTap,
+  }) {
     return Expanded(
       child: GestureDetector(
         onTap: onTap,
-        child: SizedBox(
-          width: 100,
-          child: Card(
-            elevation: 4,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            color: Colors.white,
+        child: Card(
+          elevation: 4,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          color: Colors.white,
+          child: SizedBox(
+            height: 105, // tinggi semua card disamakan
             child: Padding(
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 6,
+                vertical: 10,
+              ),
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Icon(icon, color: iconColor, size: 26),
-                  const SizedBox(width: 8),
+                  Icon(
+                    icon,
+                    color: iconColor,
+                    size: 26,
+                  ),
+                  const SizedBox(height: 6),
                   Text(
                     title,
                     textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 11,
                       fontWeight: FontWeight.bold,
                       color: Colors.blue[800],
                     ),
                   ),
-                  const SizedBox(height: 5),
+                  const SizedBox(height: 6),
                   Text(
                     value,
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
