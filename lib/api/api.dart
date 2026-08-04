@@ -17,8 +17,8 @@ import 'package:flutter/material.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
 
 class ApiHandler {
-  // String _apiurl = 'https://cmyo.sibegawan.com/api/v1';
-  String _apiurl = 'http://192.168.1.17:8000/api/v1';
+  String _apiurl = 'https://cmyo.sibegawan.com/api/v1';
+  // String _apiurl = 'http://192.168.1.17:8000/api/v1';
   // String _apiurl = 'http://192.168.1.5:8000/api/v1';
 
   String _token = '';
