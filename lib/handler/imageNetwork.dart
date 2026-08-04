@@ -13,7 +13,7 @@ class ImageNetwork {
   getimageprofil() async {
     EasyLoading.show(status: 'Loading', maskType: EasyLoadingMaskType.black);
     Image img = Image.asset(
-      'assets/images/def_img.png',
+      'assets/images/defaultimg.jpg',
       width: 39,
       height: 39,
       fit: BoxFit.fill,
@@ -36,7 +36,7 @@ class ImageNetwork {
         height: 39,
         fit: BoxFit.fill,
         errorBuilder: (context, error, stackTrace) => Image.asset(
-          'assets/images/def_img.png',
+          'assets/images/defaultimg.jpg',
           width: 39,
           height: 39,
           fit: BoxFit.fill,
@@ -50,7 +50,7 @@ class ImageNetwork {
   getimageprofilpage() async {
     EasyLoading.show(status: 'Loading', maskType: EasyLoadingMaskType.black);
     Image img = Image.asset(
-      'assets/images/def_img.png',
+      'assets/images/defaultimg.jpg',
       width: 135,
       height: 135,
       fit: BoxFit.fill,
@@ -72,7 +72,7 @@ class ImageNetwork {
         height: 135,
         fit: BoxFit.fill,
         errorBuilder: (context, error, stackTrace) => Image.asset(
-          'assets/images/def_img.png',
+          'assets/images/defaultimg.jpg',
           width: 135,
           height: 135,
           fit: BoxFit.fill,

@@ -71,6 +71,7 @@ flutter:
     - assets/images/mawareva.jpg
     - assets/images/vino.jpg
     - assets/images/def_img.png
+    - assets/images/defaultimg.jpg
 flutter_icons:
   android: "launcher_icon"
   ios: true

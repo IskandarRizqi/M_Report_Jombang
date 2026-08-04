@@ -75,7 +75,12 @@ class _LoginPageState extends State<LoginPage> {
         return;
       }
 
-      var data = {'email': email, 'password': password, 'device': 'Mobile EHR'};
+      var data = {
+        'email': email,
+        'password': password,
+        'device': 'Mobile EHR',
+        'app': 'MREPORT'
+      };
       var res = await ApiHandler().authData(data, '/login');
       var body = jsonDecode(res.body);
 

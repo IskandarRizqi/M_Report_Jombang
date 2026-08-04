@@ -47,6 +47,8 @@ class _HomeScreenState extends State<HomeScreen> {
   int totalMasukLuarLokasiKemarin = 0;
   int totalKeluarLuarLokasiHariIni = 0;
   int totalKeluarLuarLokasiKemarin = 0;
+  int pegawaibelumabsenhariini = 0;
+  int pegawaibelumabsenkemarin = 0;
   String _username = '-';
   String namaPegawai = '';
   String nip = '';
@@ -55,7 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
   DateTime? pickedDate;
 
   Image _profimg = Image.asset(
-    'assets/images/def_img.png',
+    'assets/images/defaultimg.jpg',
     width: 100,
     height: 100,
     fit: BoxFit.fill,
@@ -101,6 +103,10 @@ class _HomeScreenState extends State<HomeScreen> {
               jsonResponse['totalKeluarLuarLokasiHariIni'] ?? 0;
           totalKeluarLuarLokasiKemarin =
               jsonResponse['totalKeluarLuarLokasiKemarin'] ?? 0;
+          pegawaibelumabsenhariini =
+              jsonResponse['pegawaibelumabsenhariini'] ?? 0;
+          pegawaibelumabsenkemarin =
+              jsonResponse['pegawaibelumabsenkemarin'] ?? 0;
           shortName = jsonResponse['short_name'] ?? '';
           isLoading = false;
         });
@@ -191,6 +197,7 @@ class _HomeScreenState extends State<HomeScreen> {
         .getData('/detailabsensidashboard?tanggal=$tanggal&type=$type');
     bool isKeterangan =
         true; //true sembunyikan kolom keterangan, false tampilkan kolom keterangan
+    String txtKeterangan = 'Keterangan';
 
     if (type == 'cuti') {
       isKeterangan = false;
@@ -202,6 +209,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (type == 'keluar_luar_lokasi') {
       isKeterangan = false;
+    }
+    if (type == 'terlambat' || type == 'tidak_absen') {
+      isKeterangan = false;
+      txtKeterangan = 'Cabang / Unit Kerja';
     }
 
     List<dynamic> data = [];
@@ -309,9 +320,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                     padding: const EdgeInsets.all(8),
                                     child: Visibility(
                                       visible: !isKeterangan,
-                                      child: const Text(
-                                        'Keterangan',
-                                        style: TextStyle(
+                                      child: Text(
+                                        txtKeterangan,
+                                        style: const TextStyle(
                                           fontSize: 12,
                                           color: Colors.white,
                                           fontWeight: FontWeight.w600,
@@ -355,7 +366,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                       child: Visibility(
                                         visible: !isKeterangan,
                                         child: Text(
-                                          item['keterangan']?.toString() ?? '-',
+                                          type == 'terlambat' ||
+                                                  type == 'tidak_absen'
+                                              ? (item['cabang']?.toString() ??
+                                                  '-')
+                                              : (item['keterangan']
+                                                      ?.toString() ??
+                                                  '-'),
                                           style: const TextStyle(
                                             fontSize: 12,
                                             fontWeight: FontWeight.w600,
@@ -727,12 +744,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                       ),
                                       _buildInfoCard(
-                                        "Tidak Absen",
-                                        "${totalPegawai - totalAbsenHariIni - totalCutiHariIni} Orang",
+                                        "Belum Absen",
+                                        "${pegawaibelumabsenhariini} Orang",
                                         Icons.cancel,
                                         Colors.red,
                                         onTap: () => _showDetailPegawai(
-                                          'Tidak Absen - $formattedDate',
+                                          'Belum Absen - $formattedDate',
                                           DateFormat('yyyy-MM-dd').format(
                                               pickedDate ?? DateTime.now()),
                                           'tidak_absen',
@@ -817,12 +834,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                       ),
                                       _buildInfoCard(
-                                        "Tidak Absen",
-                                        "${totalPegawai - totalAbsenKemarin - totalCutiKemarin} Orang",
+                                        "Belum Absen",
+                                        "${pegawaibelumabsenkemarin} Orang",
                                         Icons.cancel,
                                         Colors.red,
                                         onTap: () => _showDetailPegawai(
-                                          'Tidak Absen - $formattedDateYesterday',
+                                          'Belum Absen - $formattedDateYesterday',
                                           'kemarin',
                                           'tidak_absen',
                                         ),

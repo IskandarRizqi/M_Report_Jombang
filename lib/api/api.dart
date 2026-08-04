@@ -17,8 +17,8 @@ import 'package:flutter/material.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
 
 class ApiHandler {
-  String _apiurl = 'https://cmyo.sibegawan.com/api/v1';
-  // String _apiurl = 'http://192.168.0.103:8000/api/v1';
+  // String _apiurl = 'https://cmyo.sibegawan.com/api/v1';
+  String _apiurl = 'http://192.168.1.17:8000/api/v1';
   // String _apiurl = 'http://192.168.1.5:8000/api/v1';
 
   String _token = '';
@@ -156,13 +156,18 @@ class ApiHandler {
           _changeConMethod(b: bldctx);
         }
       }
-    }
-    if (res.statusCode == 200) {
+    } else {
       SharedPreferences locStor = await SharedPreferences.getInstance();
       locStor.setString('user', '');
       locStor.setString('token', '');
       Get.offAll(() => const LoginPage());
     }
+    // if (res.statusCode == 200) {
+    //   SharedPreferences locStor = await SharedPreferences.getInstance();
+    //   locStor.setString('user', '');
+    //   locStor.setString('token', '');
+    //   Get.offAll(() => const LoginPage());
+    // }
   }
 
   authCheck({bldctx}) async {
